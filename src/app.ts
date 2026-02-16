@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import cors from 'cors';
 import morgan from 'morgan';
 import authRoutes from './modules/auth/auth.routes';
@@ -42,6 +43,18 @@ marketplaceRouter.use('/payments', paymentRoutes);
 marketplaceRouter.use('/inventory', inventoryRoutes);
 
 app.use('/api/marketplace', marketplaceRouter);
+
+// Serve frontend (samavest-portal build)
+const portalDistPath = path.join(__dirname, '..', 'samavest-portal', 'dist');
+app.use(express.static(portalDistPath));
+// SPA fallback: for GET requests that aren't API and aren't static files, serve index.html
+// Express 5 requires a named wildcard: * is not valid (path-to-regexp)
+app.get('/{*path}', (req, res, next) => {
+  if (req.method !== 'GET' || req.path.startsWith('/api')) return next();
+  res.sendFile(path.join(portalDistPath, 'index.html'), (err) => {
+    if (err) next(err);
+  });
+});
 
 app.use(errorHandler);
 
