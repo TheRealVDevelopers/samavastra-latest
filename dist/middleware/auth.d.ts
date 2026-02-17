@@ -3,5 +3,5 @@ import { JwtPayload } from '../shared/utils/jwt';
 export interface AuthenticatedRequest extends Request {
     user?: JwtPayload;
 }
-export declare function authenticateJWT(req: AuthenticatedRequest, res: Response, next: NextFunction): void | Response<any, Record<string, any>>;
+export declare function authenticateJWT(req: AuthenticatedRequest, res: Response, next: NextFunction): void;
 //# sourceMappingURL=auth.d.ts.map
