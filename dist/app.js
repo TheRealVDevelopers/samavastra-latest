@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const path_1 = __importDefault(require("path"));
 const cors_1 = __importDefault(require("cors"));
 const morgan_1 = __importDefault(require("morgan"));
 const auth_routes_1 = __importDefault(require("./modules/auth/auth.routes"));
@@ -41,6 +42,19 @@ marketplaceRouter.use('/logistics', logistics_routes_1.default);
 marketplaceRouter.use('/payments', payment_routes_1.default);
 marketplaceRouter.use('/inventory', inventory_routes_1.default);
 app.use('/api/marketplace', marketplaceRouter);
+// Serve frontend (samavest-portal build)
+const portalDistPath = path_1.default.join(__dirname, '..', 'samavest-portal', 'dist');
+app.use(express_1.default.static(portalDistPath));
+// SPA fallback: for GET requests that aren't API and aren't static files, serve index.html
+// Express 5 requires a named wildcard: * is not valid (path-to-regexp)
+app.get('/{*path}', (req, res, next) => {
+    if (req.method !== 'GET' || req.path.startsWith('/api'))
+        return next();
+    res.sendFile(path_1.default.join(portalDistPath, 'index.html'), (err) => {
+        if (err)
+            next(err);
+    });
+});
 app.use(errorHandler_1.errorHandler);
 exports.default = app;
 //# sourceMappingURL=app.js.map
